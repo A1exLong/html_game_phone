@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>追逐光点 - 反应挑战</title>
+    <style>
+        /* 简单的 CSS 样式，让界面看起来稍微精美一些 */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e; /* 深色背景 */
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; /* 防止滚动条出现 */
+            touch-action: none; /* 禁止默认的触摸操作，防止双击放大 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-container {
+            position: relative;
+            width: 90vw; /* 占据屏幕宽度的 90% */
+            height: 70vh; /* 占据屏幕高度的 70% */
+            background-color: #16213e;
+            border: 2px solid #0f3460;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 0 20px rgba(52, 152, 219, 0.3);
+            overflow: hidden;
+        }
+
+        /* 那个要被点击的目标光点 */
+        #target {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, #e94560 0%, #c70039 100%);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px #e94560, 0 0 30px #e94560; /* 发光效果 */
+            transition: all 0.1s ease; /* 让移动稍微平滑一点点 */
+            /* 初始位置 */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #score-board {
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        #instructions {
+            font-size: 14px;
+            color: #a0a0a0;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="score-board">得分: <span id="score">0</span></div>
+    <div id="instructions">尽可能快地点击红色的光点！</div>
+
+    <div id="game-container">
+        <div id="target"></div>
+    </div>
+
+    <script>
+        // 简单的 JavaScript 逻辑来控制游戏
+        const target = document.getElementById('target');
+        const scoreDisplay = document.getElementById('score');
+        const container = document.getElementById('game-container');
+        let score = 0;
+
+        // 生成随机位置的函数
+        function moveTarget() {
+            // 获取容器的宽度和高度
+            const containerRect = container.getBoundingClientRect();
+            // 获取目标自身的宽度（假定是圆的，宽高一样）
+            const targetSize = 50;
+
+            // 计算可移动的最大范围，防止光点跑出方框
+            const maxX = containerRect.width - targetSize;
+            const maxY = containerRect.height - targetSize;
+
+            // 生成随机坐标
+            const randomX = Math.floor(Math.random() * maxX);
+            const randomY = Math.floor(Math.random() * maxY);
+
+            // 应用新位置
+            target.style.left = randomX + 'px';
+            target.style.top = randomY + 'px';
+            // 清除之前的居中变换效果，否则位置计算会不准
+            target.style.transform = 'none';
+        }
+
+        // 处理点击或触摸事件的函数
+        function handleHit(e) {
+            // 阻止事件冒泡和默认行为，这对手机端触屏体验很重要
+            e.preventDefault();
+            e.stopPropagation();
+
+            // 分数加 1
+            score++;
+            scoreDisplay.innerText = score;
+
+            // 移动目标到新位置
+            moveTarget();
+
+            // 点击时稍微变小一下，增加打击感
+            target.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                 target.style.transform = 'scale(1)';
+            }, 100);
+        }
+
+        // 监听点击（电脑）和触摸开始（手机）事件
+        target.addEventListener('click', handleHit);
+        target.addEventListener('touchstart', handleHit, {passive: false});
+
+        // 游戏开始时先移动一次
+        // 稍微延时一下确保容器加载完毕
+        setTimeout(moveTarget, 500);
+
+    </script>
+</body>
+</html>
